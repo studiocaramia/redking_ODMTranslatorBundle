@@ -1,0 +1,44 @@
+{% extends 'RedkingSonataExtendedBundle:Form:form_admin_fields.html.twig' %}
+
+{% block translation_widget %}
+{% spaceless %}
+    {# Cas ou ce widget est appelé dans un custom type, les vars sonata ne sont pas passées aux enfants #}
+    {% if sonata_admin.admin is null and form.parent.vars.sonata_admin.admin is not null %}
+        {% set sonata_admin = form.parent.vars.sonata_admin %}
+        {% set sonata_admin_enabled = form.parent.vars.sonata_admin_enabled %}
+    {% endif %}
+
+    {# Cas ou ce widget est appelé dans un custome type + a partir d'une collection, il faut aller chercher le parent du parent #}
+    {% if sonata_admin.admin is null and form.parent.parent is defined and form.parent.parent.vars.sonata_admin.admin is not null %}
+        {% set sonata_admin = form.parent.parent.vars.sonata_admin %}
+        {% set sonata_admin_enabled = form.parent.parent.vars.sonata_admin_enabled %}
+    {% endif %}
+
+    <div role="tabpanel">
+
+      <!-- Nav tabs -->
+      <ul class="nav nav-tabs" role="tablist">
+        {% set cpt = 0 %}
+        {% for locale, children in form.children %}
+            <li role="presentation"{% if cpt == 0 %} class="active"{% endif %}><a href="#translate_{{ locale }}" aria-controls="home" role="tab" data-toggle="tab"><img src="/bundles/redkingodmtranslator/images/locale_icons/{{ locale }}.png" alt="{{ locale|locale }}" title="{{ locale|locale }}" /></a></li>
+            {% set cpt = cpt+1 %}
+        {% endfor %}
+      </ul>
+
+      <!-- Tab panes -->
+      <div class="tab-content">
+        {% set cpt = 0 %}
+        {% for locale, children in form.children %}
+        <div role="tabpanel" class="tab-pane fade{% if cpt == 0 %} in active{% endif %}" id="translate_{{ locale }}">
+            {% for fields in children %}
+                {{ form_row(fields, {'sonata_admin': sonata_admin, 'sonata_admin_enabled': sonata_admin_enabled}) }}
+            {% endfor %}
+            {% set cpt = cpt+1 %}
+        </div>
+        {% endfor %}
+      </div>
+
+    </div>
+
+{% endspaceless %}
+{% endblock %}
